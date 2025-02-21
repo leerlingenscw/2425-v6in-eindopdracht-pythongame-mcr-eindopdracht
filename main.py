@@ -1,90 +1,119 @@
-#
-# BREAKOUT GAME 
-#
-
 import pygame, time
+import random
 
-#
-# definitions 
-#
-
+# Game settings
 FPS = 30 # Frames Per Second
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-BALL_WIDTH = 16
-BALL_HEIGHT = 16
+CELL_SIZE = 20
+GRID_WIDTH, GRID_HEIGHT = SCREEN_WIDTH // CELL_SIZE, SCREEN_HEIGHT // CELL_SIZE
 
-ball_x = 0
-ball_speed_x = 6
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
-#
-# init game
-#
+# Directions
+UP = (0, -1)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+RIGHT = (1, 0)
 
-pygame.init()
-font = pygame.font.SysFont('default', 64)
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
-fps_clock = pygame.time.Clock()
+# Environment (food spawn;)
+def generate_food(snake_body):
+    while True:
+        food_pos = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1)) # random X-coordinaat & Y-coordinaat in the grid
+        if food_pos not in snake_body:
+            return food_pos
 
-#
-# read images
-#
+class SnakeGame:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption("Snake Game")
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.reset_game()
 
-spritesheet = pygame.image.load('Breakout_Tile_Free.png').convert_alpha()   
+    def reset_game(self):
+        self.snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]
+        self.direction = RIGHT
+        self.food = generate_food(self.snake)
+        self.game_over = False
+        self.won = False
 
-ball_img = pygame.Surface((64, 64), pygame.SRCALPHA)  
-ball_img.blit(spritesheet, (0, 0), (1403, 652, 64, 64))   
-ball_img = pygame.transform.scale(ball_img, (BALL_WIDTH, BALL_HEIGHT))  
+    def move_snake(self):
+        head_x, head_y = self.snake[0]
+        new_head = (head_x + self.direction[0], head_y + self.direction[1])
 
-#
-# game loop
-#
+# Check for collisions
+        if (
+            new_head in self.snake or # Snake collides with itself
+            new_head[0] < 0 or new_head[0] >= GRID_WIDTH or # Wall collision (left/right)
+            new_head[1] < 0 or new_head[1] >= GRID_HEIGHT # Wall collision (top/bottom)
+        ):
+            self.game_over = True
+            return
+        
+        # Move snake
+        self.snake.insert(0, new_head)
+        
+        # Check if snake eats food
+        if new_head == self.food:
+            self.food = generate_food(self.snake)
+        else:
+            self.snake.pop()
+        
+        # Check win condition
+        if len(self.snake) == GRID_WIDTH * GRID_HEIGHT:
+            self.won = True
+            self.game_over = True
 
-print('mygame is running')
-running = True
-while running:
-    #
-    # read events
-    # 
-    for event in pygame.event.get(): 
-        if event.type == pygame.QUIT:  
-            running = False 
-    keys = pygame.key.get_pressed() 
-            
-    # 
-    # move everything
-    #
+    def handle_input(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and self.direction != DOWN:
+                    self.direction = UP
+                elif event.key == pygame.K_DOWN and self.direction != UP:
+                    self.direction = DOWN
+                elif event.key == pygame.K_LEFT and self.direction != RIGHT:
+                    self.direction = LEFT
+                elif event.key == pygame.K_RIGHT and self.direction != LEFT:
+                    self.direction = RIGHT
 
-    # move ball
-    ball_x = ball_x + ball_speed_x
+    def draw(self):
+        self.screen.fill(BLACK)
+        
+        # Draw snake
+        for segment in self.snake:
+            pygame.draw.rect(self.screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        
+        # Draw food
+        pygame.draw.rect(self.screen, RED, (self.food[0] * CELL_SIZE, self.food[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+        
+        # Display game over message
+        if self.game_over:
+            font = pygame.font.Font(None, 36)
+            message = "You Win!" if self.won else "Game Over"
+            text = font.render(message, True, WHITE)
+            self.screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
+        
+        pygame.display.flip()
 
-    # bounce ball
-    if ball_x < 0 : 
-      ball_speed_x = abs(ball_speed_x) 
-    if ball_x + BALL_WIDTH > SCREEN_WIDTH: 
-      ball_speed_x = abs(ball_speed_x) * -1 
+    def run(self):
+        while self.running:
+            self.handle_input()
+            if not self.game_over:
+                self.move_snake()
+            self.draw()
+            self.clock.tick(10)  # Constant speed (10 FPS)
+        
+        pygame.quit()
 
-    # 
-    # handle collisions
-    #
-    
-    # 
-    # draw everything
-    #
-
-    # clear screen
-    screen.fill('black') 
-
-    # draw ball
-    screen.blit(ball_img, (ball_x, 0))
-    
-    # show screen
-    pygame.display.flip() 
-
-    # 
-    # wait until next frame
-    #
-
-    fps_clock.tick(FPS) # Sleep the remaining time of this frame
-
-print('mygame stopt running')
+# Run the game
+if __name__ == "__main__":
+    game = SnakeGame()
+    game.run()        
