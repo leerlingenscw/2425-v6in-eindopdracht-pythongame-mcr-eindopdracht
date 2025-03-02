@@ -26,6 +26,9 @@ def generate_food():
 # Generate the first food position
 food = generate_food()
 
+# Initialize snake
+snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]  # Snake starts in the center
+
 # Game loop
 running = True
 while running:
