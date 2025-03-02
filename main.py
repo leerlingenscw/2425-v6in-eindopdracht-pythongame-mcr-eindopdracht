@@ -15,9 +15,15 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
+# Richtingen
+UP = (0, -1)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+RIGHT = (1, 0)
+
 # Create game window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Snake Game Environment + Snake")
+pygame.display.set_caption("Snake Game Environment + Bewegende Snake")
 
 # Functie food spawn random position
 def generate_food():
@@ -28,9 +34,12 @@ food = generate_food()
 
 # Initialize snake
 snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]  # Snake starts in the center
+direction = RIGHT  # Initial direction
 
 # Game loop
 running = True
+clock = pygame.time.Clock()  # Control game speed
+
 while running:
     screen.fill(BLACK)  # Clear screen
 
@@ -40,6 +49,12 @@ while running:
     # Draw snake
     for segment in snake:
         pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+ 
+ # Move snake
+    head_x, head_y = snake[0]
+    new_head = (head_x + direction[0], head_y + direction[1])
+    snake.insert(0, new_head)  # Add new head
+    snake.pop()  # Remove tail to simulate movement
 
     # Event handling
     for event in pygame.event.get():
@@ -47,6 +62,7 @@ while running:
             running = False
 
     pygame.display.flip()  # Update display
+    clock.tick(10)  # Control speed (10 FPS)
 
 # Quit Pygame
 pygame.quit()
