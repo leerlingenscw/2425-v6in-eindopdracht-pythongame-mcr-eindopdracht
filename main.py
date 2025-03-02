@@ -28,9 +28,9 @@ snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE)) 
 # Function head rotation based on richting
 def get_rotated_head(image, direction):
     if direction == UP:
-        return pygame.transform.rotate(image, 90)
-    elif direction == DOWN:
         return pygame.transform.rotate(image, -90)
+    elif direction == DOWN:
+        return pygame.transform.rotate(image, 90)
     elif direction == LEFT:
         return pygame.transform.rotate(image, 180)
     else:
@@ -61,23 +61,7 @@ while running:
     # Draw food
     pygame.draw.rect(screen, RED, (food[0] * CELL_SIZE, food[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
-    # Draw snake
-    for index, segment in enumerate(snake):
-        if index == 0:  
-            # Draw head image
-            rotated_head = get_rotated_head(snake_head_img, direction)
-            screen.blit(rotated_head, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
-        else:
-            # Draw body as groene blokjes
-            pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
- 
-    # Move snake
-    head_x, head_y = snake[0]
-    new_head = (head_x + direction[0], head_y + direction[1])
-    snake.insert(0, new_head)  # Add new head
-    snake.pop()  # Remove tail
-
-    # Event handling
+# Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -90,6 +74,22 @@ while running:
                 direction = LEFT
             elif event.key == pygame.K_RIGHT and direction != LEFT:
                 direction = RIGHT
+            rotated_head_img = get_rotated_head(snake_head_img, direction)
+
+    # Draw snake
+    for index, segment in enumerate(snake):
+        if index == 0:  
+            # Draw head image
+            screen.blit(rotated_head_img, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
+        else:
+            # Draw body as groene blokjes
+            pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+ 
+    # Move snake
+    head_x, head_y = snake[0]
+    new_head = (head_x + direction[0], head_y + direction[1])
+    snake.insert(0, new_head)  # Add new head
+    snake.pop()  # Remove tail
 
     pygame.display.flip()  # Update display
     clock.tick(10)  # Control speed (10 FPS)
