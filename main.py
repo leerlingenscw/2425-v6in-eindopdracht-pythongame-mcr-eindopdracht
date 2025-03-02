@@ -25,6 +25,17 @@ RIGHT = (1, 0)
 snake_head_img = pygame.image.load("snake_head.png")
 snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))  # Resize om grid te fitten
 
+# Function head rotation based on richting
+def get_rotated_head(image, direction):
+    if direction == UP:
+        return pygame.transform.rotate(image, 90)
+    elif direction == DOWN:
+        return pygame.transform.rotate(image, -90)
+    elif direction == LEFT:
+        return pygame.transform.rotate(image, 180)
+    else:
+        return image  # Default = Right
+    
 # Create game window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game Head image")
@@ -54,7 +65,8 @@ while running:
     for index, segment in enumerate(snake):
         if index == 0:  
             # Draw head image
-            screen.blit(snake_head_img, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
+            rotated_head = get_rotated_head(snake_head_img, direction)
+            screen.blit(rotated_head, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
         else:
             # Draw body as groene blokjes
             pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
