@@ -21,6 +21,10 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
+#Images
+snake_head_img = pygame.image.load("snake_head.png")
+snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))  # Resize om grid te fitten
+
 # Create game window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game Environment + Bewegende Snake")
@@ -54,12 +58,15 @@ while running:
     head_x, head_y = snake[0]
     new_head = (head_x + direction[0], head_y + direction[1])
     snake.insert(0, new_head)  # Add new head
-    snake.pop()  # Remove tail to simulate movement
+    snake.pop()  # Remove tail
 
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and direction != DOWN:
+                direction = UP
 
     pygame.display.flip()  # Update display
     clock.tick(10)  # Control speed (10 FPS)
