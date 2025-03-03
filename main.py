@@ -12,6 +12,7 @@ GRID_WIDTH, GRID_HEIGHT = SCREEN_WIDTH // CELL_SIZE, SCREEN_HEIGHT // CELL_SIZE
 
 # Kleuren
 BLACK = (0, 0, 0)
+WHITE = (255,255,255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
@@ -26,16 +27,7 @@ snake_head_img = pygame.image.load("images/snake_head.png")
 snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
 
 # Font
-font = pygame.font.SysFont("monospace", 20)
-
-# Game over pop-up
-def show_game_over():
-    screen.fill(BLACK)
-    text = font.render("Game Over", True, RED)
-    text_rect = text.get_rect((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    screen.blit(text, text_rect)
-    pygame.display.flip()
-    pygame.time.delay(3000)  # 3sec timer before quitting
+font = pygame.font.SysFont("monospace", 30)
 
 # Function head rotation based on richting
 def get_rotated_head(image, direction):
@@ -62,6 +54,7 @@ def generate_food():
 # Initialize snake + game variables
 snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]  # Start in the center
 direction = RIGHT
+food_eaten = 0
 food = generate_food()
 running = True
 clock = pygame.time.Clock()
@@ -91,8 +84,8 @@ while running:
 # Check for collisions (wall & self)
     if (
         new_head in snake  # Collision with itself
-        or new_head[0] < 0 or new_head[0] >= GRID_WIDTH  # Wall collision (left/right)
-        or new_head[1] < 0 or new_head[1] >= GRID_HEIGHT  # Wall collision (top/bottom)
+        or new_head[0] <= 0 or new_head[0] >= GRID_WIDTH  # Wall collision (left/right)
+        or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT  # Wall collision (top/bottom)
     ):
         print("Game Over!")
         running = False
@@ -102,6 +95,7 @@ while running:
 
     # If snake eats food
     if new_head == food:
+        food_eaten += 1  # Increase counter display
         food = generate_food()  # Generate new food
     else:
         snake.pop()  # Remove last segment
@@ -116,6 +110,10 @@ while running:
             screen.blit(rotated_head_img, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
         else:
             pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+    # Food counter
+    food_counter_text = font.render(f"Score: {food_eaten}", True, WHITE)
+    screen.blit(food_counter_text, (SCREEN_WIDTH - 150, 20))  # Pos upper-right corner
 
     pygame.display.flip()
     clock.tick(10)
