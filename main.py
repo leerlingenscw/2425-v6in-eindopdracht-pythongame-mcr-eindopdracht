@@ -162,17 +162,14 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 done = True
 
-        # randomly choose actions
-        action = random.randint(0, 3)
-        
-        # Prevent the snake from reversing direction
-        if self.direction == LEFT and action == RIGHT :
+        # Random action and prevent the snake from reversing direction
+        if self.direction == LEFT:
             action = random.choice([0, 1, 3])
-        elif self.direction == RIGHT and action == LEFT :
+        elif self.direction == RIGHT:
             action = random.choice([0, 1, 2])
-        elif self.direction == DOWN and action == UP :
+        elif self.direction == DOWN :
             action = random.choice([1, 2, 3])
-        elif self.direction == UP and action == DOWN :
+        elif self.direction == UP :
             action = random.choice([0, 2, 3])
 
         state, reward, done = game.step(action)
