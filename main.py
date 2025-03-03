@@ -59,7 +59,7 @@ pygame.display.set_caption("Snake Game Head image")
 # Function to generate random food position
 def generate_food():
     while True:
-        food_pos = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+        food_pos = (random.randint(1, GRID_WIDTH - 2), random.randint(1, GRID_HEIGHT - 2))
         if food_pos not in snake:  # No food pawn in snake
             return food_pos
 
