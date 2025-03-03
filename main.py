@@ -1,5 +1,7 @@
 import pygame
 import random
+
+# Fix ALSA issues
 import os
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
