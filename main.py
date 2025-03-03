@@ -76,16 +76,6 @@ class SnakeGame:
     def step(self, action):
         # Update direction <- action
         self.direction = ACTIONS[action]
-
-        # Prevent the snake from reversing direction
-        if self.direction == LEFT and action == RIGHT :
-            action = random.choice([0, 1, 3])
-        elif self.direction == RIGHT and action == LEFT :
-            action = random.choice([0, 1, 2])
-        elif self.direction == DOWN and action == UP :
-            action = random.choice([1, 2, 3])
-        elif self.direction == UP and action == DOWN :
-            action = random.choice([0, 2, 3])
         
         # Move snake
         head_x, head_y = self.snake[0]
@@ -174,6 +164,17 @@ if __name__ == "__main__":
 
         # randomly choose actions
         action = random.randint(0, 3)
+        
+        # Prevent the snake from reversing direction
+        if self.direction == LEFT and action == RIGHT :
+            action = random.choice([0, 1, 3])
+        elif self.direction == RIGHT and action == LEFT :
+            action = random.choice([0, 1, 2])
+        elif self.direction == DOWN and action == UP :
+            action = random.choice([1, 2, 3])
+        elif self.direction == UP and action == DOWN :
+            action = random.choice([0, 2, 3])
+
         state, reward, done = game.step(action)
 
         # Display the game window
