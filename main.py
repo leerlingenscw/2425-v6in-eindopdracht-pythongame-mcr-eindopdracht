@@ -1,5 +1,7 @@
 import pygame
 import random
+import os
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 # Initialize Pygame
 pygame.init()
@@ -27,7 +29,17 @@ snake_head_img = pygame.image.load("images/snake_head.png")
 snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
 
 # Font
-font = pygame.font.SysFont("monospace", 30)
+font_counter = pygame.font.SysFont("monospace", 30)
+font_gameover = pygame.font.SysFont("Rubberstamplet", 100)
+
+# Function to display game over message
+def show_game_over():
+    screen.fill(BLACK)
+    text = font_gameover.render("GAME OVER", True, RED)
+    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    screen.blit(text, text_rect)
+    pygame.display.flip()
+    pygame.time.delay(1000)  # 1 sec before quitting
 
 # Function head rotation based on richting
 def get_rotated_head(image, direction):
@@ -84,9 +96,10 @@ while running:
 # Check for collisions (wall & self)
     if (
         new_head in snake  # Collision with itself
-        or new_head[0] <= 0 or new_head[0] >= GRID_WIDTH  # Wall collision (left/right)
-        or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT  # Wall collision (top/bottom)
+        or new_head[0] < 0 or new_head[0] >= GRID_WIDTH  # Wall collision (left/right)
+        or new_head[1] < 0 or new_head[1] >= GRID_HEIGHT  # Wall collision (top/bottom)
     ):
+        show_game_over()
         print("Game Over!")
         running = False
 
@@ -112,8 +125,8 @@ while running:
             pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
     # Food counter
-    food_counter_text = font.render(f"Score: {food_eaten}", True, WHITE)
-    screen.blit(food_counter_text, (SCREEN_WIDTH - 150, 20))  # Pos upper-right corner
+    food_counter_text = font_counter.render(f"Score: {food_eaten}", True, WHITE)
+    screen.blit(food_counter_text, (SCREEN_WIDTH - 150, 20))  # Counter upper-right corner
 
     pygame.display.flip()
     clock.tick(10)
