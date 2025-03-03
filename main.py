@@ -97,7 +97,6 @@ class SnakeGame:
         or new_head[0] <= 0 or new_head[0] >= GRID_WIDTH - 1  # Wall collision (left/right)
         or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT - 1  # Wall collision (top/bottom)
         ):
-            print("Game Over!")
             self.done = True  # Set done to True when game over
             return self.get_state(), -1, self.done  # -1 reward for losing
 
@@ -154,7 +153,7 @@ class SnakeGame:
     def show_game_over(self):
         # Display the "Game Over" message
         screen = pygame.display.get_surface()
-        print("Game Over!")
+        print("Game Over! Score: " + str(game.score))
         screen.fill(BLACK)
         game_over_text = font_gameover.render("GAME OVER", True, RED)
         text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -181,7 +180,6 @@ if __name__ == "__main__":
         game.render()
 
         if done:
-            print("Game Over! Score: " + str(game.score))
             game.show_game_over()  # Game Over message
             game.reset()  # Reset
             pygame.time.delay(1000)  # 1 sec before resetting
