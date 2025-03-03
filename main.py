@@ -25,6 +25,18 @@ RIGHT = (1, 0)
 snake_head_img = pygame.image.load("images/snake_head.png")
 snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
 
+# Font
+font = pygame.font.SysFont("monospace", 20)
+
+# Game over pop-up
+def show_game_over():
+    screen.fill(BLACK)
+    text = font.render("Game Over", True, RED)
+    text_rect = text.get_rect((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    screen.blit(text, text_rect)
+    pygame.display.flip()
+    pygame.time.delay(3000)  # 3sec timer before quitting
+
 # Function head rotation based on richting
 def get_rotated_head(image, direction):
     if direction == UP:
@@ -75,6 +87,15 @@ while running:
     # Move snake
     head_x, head_y = snake[0]
     new_head = (head_x + direction[0], head_y + direction[1])
+
+# Check for collisions (wall & self)
+    if (
+        new_head in snake  # Collision with itself
+        or new_head[0] < 0 or new_head[0] >= GRID_WIDTH  # Wall collision (left/right)
+        or new_head[1] < 0 or new_head[1] >= GRID_HEIGHT  # Wall collision (top/bottom)
+    ):
+        print("Game Over!")
+        running = False
 
     # Add new head
     snake.insert(0, new_head)
