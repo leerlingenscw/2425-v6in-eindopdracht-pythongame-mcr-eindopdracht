@@ -38,6 +38,10 @@ snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
 font_counter = pygame.font.SysFont("monospace", 30)
 font_gameover = pygame.font.SysFont("Rubberstamplet", 100)
 
+# Screen and clock
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+clock = pygame.time.Clock()
+
 # SnakeGame Class
 class SnakeGame:
     def __init__(self):
@@ -73,6 +77,16 @@ class SnakeGame:
         # Update direction <- action
         self.direction = ACTIONS[action]
 
+        # Prevent the snake from reversing direction
+        if self.direction == LEFT and action == RIGHT :
+            action = random.choice([0, 1, 3])
+        elif self.direction == RIGHT and action == LEFT :
+            action = random.choice([0, 1, 2])
+        elif self.direction == DOWN and action == UP :
+            action = random.choice([1, 2, 3])
+        elif self.direction == UP and action == DOWN :
+            action = random.choice([0, 2, 3])
+        
         # Move snake
         head_x, head_y = self.snake[0]
         new_head = (head_x + self.direction[0], head_y + self.direction[1])
@@ -84,6 +98,7 @@ class SnakeGame:
         or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT - 1  # Wall collision (top/bottom)
         ):
             print("Game Over!")
+            self.done = True  # Set done to True when game over
             return self.get_state(), -1, self.done  # -1 reward for losing
 
         # Add new head
@@ -102,10 +117,7 @@ class SnakeGame:
 
     def render(self):
         # Render the game
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption("Snake Game")
-
-        screen.fill(BLACK)
+        screen.fill(BLACK)  # Ensure screen cleared -> anders glitch
 
         # Draw border
         pygame.draw.rect(screen, WHITE, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), CELL_SIZE)
@@ -123,10 +135,10 @@ class SnakeGame:
                 pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
         
         # Draw the score
-        score_text = font_counter.render("Score: " + str(self.score), True, WHITE)
+        score_text = font_counter.render(f"Score: {self.score}", True, WHITE)
         screen.blit(score_text, (SCREEN_WIDTH - 150, 20))
 
-        pygame.display.flip()
+        pygame.display.flip()  # Update nodig zodat er minder glitch is!!!
 
     def get_rotated_head(self, image, direction):
         # Rotate the snake head image based on its direction
@@ -168,11 +180,10 @@ if __name__ == "__main__":
         # Display the game window
         game.render()
 
-        # Print the game state
-        print(f"State: {state}, Reward: {reward}, Done: {done}")
-
         if done:
             print("Game Over! Score: " + str(game.score))
             game.show_game_over()  # Game Over message
             game.reset()  # Reset
             pygame.time.delay(1000)  # 1 sec before resetting
+
+        clock.tick(10)  # FPS
