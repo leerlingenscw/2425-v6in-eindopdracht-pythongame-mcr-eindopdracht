@@ -21,9 +21,9 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-#Images
-snake_head_img = pygame.image.load("snake_head.png")
-snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))  # Resize om grid te fitten
+# Images
+snake_head_img = pygame.image.load("images/snake_head.png")
+snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
 
 # Function head rotation based on richting
 def get_rotated_head(image, direction):
@@ -35,33 +35,30 @@ def get_rotated_head(image, direction):
         return pygame.transform.rotate(image, 180)
     else:
         return image  # Default = Right
-    
+
 # Create game window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game Head image")
 
-# Functie food spawn random position
+# Function to generate random food position
 def generate_food():
-    return (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+    while True:
+        food_pos = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+        if food_pos not in snake:  # No food pawn in snake
+            return food_pos
 
-# Generate the first food position
+# Initialize snake + game variables
+snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]  # Start in the center
+direction = RIGHT
 food = generate_food()
-
-# Initialize snake
-snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]  # Snake starts in the center
-direction = RIGHT  # Initial direction
+running = True
+clock = pygame.time.Clock()
 
 # Game loop
-running = True
-clock = pygame.time.Clock()  # Control game speed
-
 while running:
-    screen.fill(BLACK)  # Clear screen
+    screen.fill(BLACK)
 
-    # Draw food
-    pygame.draw.rect(screen, RED, (food[0] * CELL_SIZE, food[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-
-# Event handling
+    # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -74,25 +71,32 @@ while running:
                 direction = LEFT
             elif event.key == pygame.K_RIGHT and direction != LEFT:
                 direction = RIGHT
-            rotated_head_img = get_rotated_head(snake_head_img, direction)
 
-    # Draw snake
-    for index, segment in enumerate(snake):
-        if index == 0:  
-            # Draw head image
-            screen.blit(rotated_head_img, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
-        else:
-            # Draw body as groene blokjes
-            pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
- 
     # Move snake
     head_x, head_y = snake[0]
     new_head = (head_x + direction[0], head_y + direction[1])
-    snake.insert(0, new_head)  # Add new head
-    snake.pop()  # Remove tail
 
-    pygame.display.flip()  # Update display
-    clock.tick(10)  # Control speed (10 FPS)
+    # Add new head
+    snake.insert(0, new_head)
 
-# Quit Pygame
+    # If snake eats food
+    if new_head == food:
+        food = generate_food()  # Generate new food
+    else:
+        snake.pop()  # Remove last segment
+
+    # Draw food
+    pygame.draw.rect(screen, RED, (food[0] * CELL_SIZE, food[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+    # Draw snake
+    for index, segment in enumerate(snake):
+        if index == 0:
+            rotated_head_img = get_rotated_head(snake_head_img, direction)
+            screen.blit(rotated_head_img, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
+        else:
+            pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+    pygame.display.flip()
+    clock.tick(10)
+
 pygame.quit()
