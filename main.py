@@ -135,7 +135,7 @@ class SnakeGame:
         
         # Draw the score
         score_text = font_counter.render(f"Score: {self.score}", True, WHITE)
-        screen.blit(score_text, (SCREEN_WIDTH - 150, 20))
+        screen.blit(score_text, (SCREEN_WIDTH - 250, 20))
 
         pygame.display.flip()  # Update nodig zodat er minder glitch is!!!
 
