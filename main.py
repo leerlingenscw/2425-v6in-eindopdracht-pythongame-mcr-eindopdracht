@@ -79,11 +79,10 @@ class SnakeGame:
 
         # Check for collisions (self or walls)
         if (
-        new_head in snake  # Collision with itself
+        new_head in self.snake  # Collision with itself
         or new_head[0] <= 0 or new_head[0] >= GRID_WIDTH - 1  # Wall collision (left/right)
         or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT - 1  # Wall collision (top/bottom)
         ):
-            show_game_over()
             print("Game Over!")
             return self.get_state(), -1, self.done  # -1 reward for losing
 
@@ -124,7 +123,7 @@ class SnakeGame:
                 pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
         
         # Draw the score
-        score_text = font_counter.render(f"Score: {self.score}", True, WHITE)
+        score_text = font_counter.render("Score: " + str(self.score), True, WHITE)
         screen.blit(score_text, (SCREEN_WIDTH - 150, 20))
 
         pygame.display.flip()
@@ -152,67 +151,28 @@ class SnakeGame:
         pygame.time.delay(1000)  # 1sec before quitting
 
 
-# Game loop
-while running:
-    screen.fill(BLACK)
+# Game loop TESTING
+if __name__ == "__main__":
+    game = SnakeGame()
+    done = False
 
-    # Draw White border
-    pygame.draw.rect(screen, WHITE, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), CELL_SIZE)
+    while not done:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
 
-    # Event handling
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and direction != DOWN:
-                direction = UP
-            elif event.key == pygame.K_DOWN and direction != UP:
-                direction = DOWN
-            elif event.key == pygame.K_LEFT and direction != RIGHT:
-                direction = LEFT
-            elif event.key == pygame.K_RIGHT and direction != LEFT:
-                direction = RIGHT
+        # randomly choose actions
+        action = random.randint(0, 3)
+        state, reward, done = game.step(action)
 
-    # Move snake
-    head_x, head_y = snake[0]
-    new_head = (head_x + direction[0], head_y + direction[1])
+        # Display the game window
+        game.render()
 
-# Check for collisions (wall & self)
-    if (
-        new_head in snake  # Collision with itself
-        or new_head[0] <= 0 or new_head[0] >= GRID_WIDTH - 1  # Wall collision (left/right)
-        or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT - 1  # Wall collision (top/bottom)
-    ):
-        show_game_over()
-        print("Game Over!")
-        running = False
+        # Print the game state
+        print(f"State: {state}, Reward: {reward}, Done: {done}")
 
-    # Add new head
-    snake.insert(0, new_head)
-
-    # If snake eats food
-    if new_head == food:
-        food_eaten += 1  # Increase counter display
-        food = generate_food()  # Generate new food
-    else:
-        snake.pop()  # Remove last segment
-
-    # Draw food
-    pygame.draw.rect(screen, RED, (food[0] * CELL_SIZE, food[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-
-    # Draw snake
-    for index, segment in enumerate(snake):
-        if index == 0:
-            rotated_head_img = get_rotated_head(snake_head_img, direction)
-            screen.blit(rotated_head_img, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE))
-        else:
-            pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-
-    # Food counter
-    food_counter_text = font_counter.render(f"Score: {food_eaten}", True, WHITE)
-    screen.blit(food_counter_text, (SCREEN_WIDTH - 150, 20))  # Counter upper-right corner
-
-    pygame.display.flip()
-    clock.tick(10)
-
-pygame.quit()
+        if done:
+            print("Game Over! Score: " + str(game.score))
+            game.show_game_over()  # Game Over message
+            game.reset()  # Reset
+            pygame.time.delay(1000)  # 1 sec before resetting
