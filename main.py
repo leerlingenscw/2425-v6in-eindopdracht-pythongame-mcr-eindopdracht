@@ -75,6 +75,9 @@ clock = pygame.time.Clock()
 while running:
     screen.fill(BLACK)
 
+    # Draw White border
+    pygame.draw.rect(screen, WHITE, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT), CELL_SIZE)
+
     # Event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -96,8 +99,8 @@ while running:
 # Check for collisions (wall & self)
     if (
         new_head in snake  # Collision with itself
-        or new_head[0] < 0 or new_head[0] >= GRID_WIDTH  # Wall collision (left/right)
-        or new_head[1] < 0 or new_head[1] >= GRID_HEIGHT  # Wall collision (top/bottom)
+        or new_head[0] <= 0 or new_head[0] >= GRID_WIDTH - 1  # Wall collision (left/right)
+        or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT - 1  # Wall collision (top/bottom)
     ):
         show_game_over()
         print("Game Over!")
