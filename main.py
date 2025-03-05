@@ -60,6 +60,52 @@ class DQN(nn.Module):
         x = func.relu(self.fc2(x))
         return self.fc3(x)
 
+# Snake Agent
+class SnakeAgent:
+    def __init__(self):
+        self.model = DQN(17, 4)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        self.memory = deque(maxlen=10000)
+        self.gamma = 0.9
+        self.epsilon = 1.0  # exploratiegraad
+        self.epsilon_decay = 0.995
+        self.epsilon_min = 0.01
+   
+    def get_action(self, state):
+        if random.random() < self.epsilon:
+            return random.randint(0, 3)
+        state_tensor = torch.tensor(state, dtype=torch.float32).unsqueeze(0)
+        with torch.no_grad():
+            action_values = self.model(state_tensor)
+        return torch.argmax(action_values).item()
+   
+    def store_transition(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+   
+    def train(self, batch_size=64):
+        if len(self.memory) < batch_size:
+            return
+        batch = random.sample(self.memory, batch_size)
+        states, actions, rewards, next_states, dones = zip(*batch)
+       
+        states = torch.tensor(numpy.array(states), dtype=torch.float32)
+        actions = torch.tensor(actions, dtype=torch.int64).unsqueeze(1)
+        rewards = torch.tensor(numpy.array(rewards), dtype=torch.float32)
+        next_states = torch.tensor(numpy.array(next_states), dtype=torch.float32)
+        dones = torch.tensor(numpy.array(dones), dtype=torch.float32)
+       
+        q_values = self.model(states).gather(1, actions).squeeze()
+        next_q_values = self.model(next_states).max(1)[0]
+        target_q_values = rewards + self.gamma * next_q_values * (1 - dones)
+       
+        loss = func.mse_loss(q_values, target_q_values.detach())
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+       
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
+
 # SnakeGame Class
 class SnakeGame:
     def __init__(self):
