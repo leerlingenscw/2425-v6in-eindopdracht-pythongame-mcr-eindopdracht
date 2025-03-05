@@ -153,13 +153,13 @@ class SnakeGame:
 
         # Prevent the snake from reversing direction
         if self.direction == LEFT and action == RIGHT :
-            action = random.choice([0, 1, 3])
+            action = LEFT
         elif self.direction == RIGHT and action == LEFT :
-            action = random.choice([0, 1, 2])
+            action = RIGHT
         elif self.direction == DOWN and action == UP :
-            action = random.choice([1, 2, 3])
+            action = DOWN
         elif self.direction == UP and action == DOWN :
-            action = random.choice([0, 2, 3])
+            action = UP
 
         # Move snake
         head_x, head_y = self.snake[0]
