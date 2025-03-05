@@ -64,12 +64,18 @@ class DQN(nn.Module):
 class SnakeAgent:
     def __init__(self):
         self.model = DQN(17, 4)
+        self.target_model(17,4)
+        self.target_model.load_state_dict(self.model.state_dict())
+        self.target_model.eval()
+
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
         self.memory = deque(maxlen=10000)
         self.gamma = 0.9
-        self.epsilon = 1.0  # exploratiegraad
+        self.epsilon = 1.0 
         self.epsilon_decay = 0.995
         self.epsilon_min = 0.01
+        self.update_target_freq = 10 
+        self.train_step = 0
    
     def get_action(self, state):
         if random.random() < self.epsilon:
@@ -95,7 +101,7 @@ class SnakeAgent:
         dones = torch.tensor(numpy.array(dones), dtype=torch.float32)
        
         q_values = self.model(states).gather(1, actions).squeeze()
-        next_q_values = self.model(next_states).max(1)[0]
+        next_q_values = self.target_model(next_states).max(1)[0]
         target_q_values = rewards + self.gamma * next_q_values * (1 - dones)
        
         loss = func.mse_loss(q_values, target_q_values.detach())
@@ -105,6 +111,10 @@ class SnakeAgent:
        
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+
+        self.train_step += 1
+        if self.train_step % self.update_target_freq == 0:
+            self.target_model.load_state_dict(self.model.state_dict())
 
 # SnakeGame Class
 class SnakeGame:
