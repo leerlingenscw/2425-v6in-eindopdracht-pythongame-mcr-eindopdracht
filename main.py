@@ -1,6 +1,11 @@
 import pygame
 import random
 import numpy
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as func
+from collections import deque
 
 # Fix ALSA issues
 import os
