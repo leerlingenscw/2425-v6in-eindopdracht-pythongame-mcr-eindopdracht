@@ -47,6 +47,19 @@ font_gameover = pygame.font.SysFont("Rubberstamplet", 100)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 clock = pygame.time.Clock()
 
+# Neuraal netwerk
+class DQN(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(DQN, self).__init__()
+        self.fc1 = nn.Linear(input_dim, 128)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, output_dim)
+   
+    def forward(self, x):
+        x = func.relu(self.fc1(x))
+        x = func.relu(self.fc2(x))
+        return self.fc3(x)
+
 # SnakeGame Class
 class SnakeGame:
     def __init__(self):
