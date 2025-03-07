@@ -285,8 +285,7 @@ class SnakeGame:
 
         # Draw the score
         score_text = font_counter.render(f"Score: {self.score}", True, WHITE)
-        screen.blit(score_text, (SCREEN_WIDTH - 150, 20))
-
+        screen.blit(score_text, (SCREEN_WIDTH - 1250, 20))
         pygame.display.flip()  # Update nodig zodat er minder glitch is!!!
 
     def get_rotated_head(self, image, direction):
