@@ -147,6 +147,27 @@ class SnakeGame:
         food_x, food_y = self.food
         return numpy.array([head_x, head_y, food_x, food_y, self.direction[0], self.direction[1]], dtype=numpy.float32)
 
+    def distance_to_obstacle(self, direction):
+        head_x, head_y = self.snake[0]
+        distance = 0
+        current = (head_x, head_y)
+        while True:
+            current = (current[0] + direction[0], current[1] + direction[1])
+            distance += 1
+            # Controleer of snake buiten grenzen gaat of met het lichaam botst
+            if current[0] <= 0 or current[0] >= GRID_WIDTH - 1 or current[1] <= 0 or current[1] >= GRID_HEIGHT - 1 or current in self.snake:
+                break
+        return distance
+
+# Geeft 1.0 terug als de volgende cel in de gegeven richting gevaarlijk is (botsing), anders 0.0.
+    def check_danger(self, direction):
+        head_x, head_y = self.snake[0]
+        next_cell = (head_x + direction[0], head_y + direction[1])
+        if next_cell[0] <= 0 or next_cell[0] >= GRID_WIDTH - 1 or next_cell[1] <= 0 or next_cell[1] >= GRID_HEIGHT - 1 or next_cell in self.snake:
+            return 1.0
+        else:
+            return 0.0
+
     def step(self, action):
         # Update direction <- action
         self.direction = ACTIONS[action]
