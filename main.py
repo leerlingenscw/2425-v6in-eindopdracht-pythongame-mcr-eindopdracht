@@ -11,9 +11,6 @@ from collections import deque
 import os
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
-# Initialize Pygame
-pygame.init()
-
 # Game settings
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -211,6 +208,8 @@ class SnakeGame:
 
         # Move snake
         head_x, head_y = self.snake[0]
+        food_x, food_y = self.food
+        old_distance = abs(head_x - food_x) + abs(head_y - food_y)
         new_head = (head_x + self.direction[0], head_y + self.direction[1])
 
         # Check for collisions (self or walls)
@@ -231,8 +230,15 @@ class SnakeGame:
             self.score += 1  # Increase score
             reward = 1  # Reward for eating food
         else:
-            self.snake.pop()  # Remove the tail of the snake if no food eaten
-            reward = 0  # No reward for just moving
+            self.snake.pop()  # Remove the tail of the snake if no food eaten       
+            new_distance = abs(new_head[0] - food_x) + abs(new_head[1] - food_y)
+
+            if new_distance < old_distance:
+                reward = 0.1
+            elif new_distance > old_distance:
+                reward = -0.1
+            else:
+                reward = 0
 
         return self.get_state(), reward, self.done
 
@@ -306,3 +312,7 @@ if __name__ == "__main__":
             game.show_game_over()  # Game Over message
             game.reset()  # Reset
             pygame.time.delay(1000)  # 1 sec before resetting
+
+
+# Initialize Pygame
+pygame.init()
