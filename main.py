@@ -315,4 +315,27 @@ if __name__ == "__main__":
 
 
 # Initialize Pygame
-pygame.init()
+if __name__ == "__main__":
+    pygame.init()
+    game = SnakeGame()
+    agent = SnakeAgent()
+    clock = pygame.time.Clock()
+    episodes = 1000
+    for episode in range (episodes):
+        state = game.reset()
+        done = False
+        total_reward = 0
+
+        while not done:
+            action = agent.get_action(state)
+            next_state, reward, done = game.step(action)
+            agent.store_transition(state, action, reward, next_state, done)
+            state = next_state
+            total_reward += reward
+            game.render()
+            clock.tick(20)
+       
+        agent.train()
+        print(f"Episode {episode+1}: Score = {game.score}, Total Reward = {total_reward}")
+
+pygame.quit()
