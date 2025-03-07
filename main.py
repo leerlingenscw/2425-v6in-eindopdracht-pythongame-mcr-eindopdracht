@@ -64,9 +64,9 @@ class DQN(nn.Module):
 
 # Snake Agent
 class SnakeAgent:
-    def __init__(self):
-        self.model = DQN(21, 4)
-        self.target_model = DQN(21,4)
+    def __init__(self, reward_history_length=5):
+        self.model = DQN(23, 4)
+        self.target_model = DQN(23,4)
         self.target_model.load_state_dict(self.model.state_dict())
         self.target_model.eval()
 
@@ -78,6 +78,10 @@ class SnakeAgent:
         self.epsilon_min = 0.01
         self.update_target_freq = 10 
         self.train_step = 0
+
+        # Initialize reward history
+        self.reward_history_length = reward_history_length
+        self.reward_history = deque(maxlen=reward_history_length)
    
     def get_action(self, state):
         if random.random() < self.epsilon:
@@ -89,6 +93,16 @@ class SnakeAgent:
    
     def store_transition(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
+
+        # Update the recent reward history
+        self.reward_history.append(reward)
+
+    def get_average_reward(self):
+        # Calculate the average of recent rewards
+        if len(self.reward_history) > 0:
+            return sum(self.reward_history) / len(self.reward_history)
+        else:
+            return 0.0
    
     def train(self, batch_size=64):
         if len(self.memory) < batch_size:
@@ -120,7 +134,9 @@ class SnakeAgent:
 
 # SnakeGame Class
 class SnakeGame:
-    def __init__(self):
+    def __init__(self, agent):
+        self.agent = agent
+        self.reward_history = deque(maxlen=5)
         # Initialize the game state
         self.reset()
 
@@ -142,6 +158,7 @@ class SnakeGame:
             food_pos = (random.randint(1, GRID_WIDTH - 2), random.randint(1, GRID_HEIGHT - 2))
             if food_pos not in self.snake:  # No food spawn in snake
                 return food_pos
+            
             
     def get_food_direction_vector(self):
         head_x, head_y = self.snake[0]
@@ -182,14 +199,14 @@ class SnakeGame:
         # Current state of the game: snake head pos, food pos, direction
         head_x, head_y = self.snake[0]
         food_x, food_y = self.food
-        
-         # Afstanden tot de schermranden
+
+        # Afstanden tot de schermranden
         dist_left = head_x
         dist_right = (GRID_WIDTH - 1) - head_x
         dist_top = head_y
         dist_bottom = (GRID_HEIGHT - 1) - head_y
 
-         # Afstanden tot obstakels in elke richting
+        # Afstanden tot obstakels in elke richting
         dist_obstacle_up = self.distance_to_obstacle(UP)
         dist_obstacle_down = self.distance_to_obstacle(DOWN)
         dist_obstacle_left = self.distance_to_obstacle(LEFT)
@@ -205,13 +222,19 @@ class SnakeGame:
         # Food direction
         food_direction = self.get_food_direction_vector()
 
+        # Snake length
+        snake_length = len(self.snake)
+
+        # Get the average recent reward from the agent
+        average_reward = self.agent.get_average_reward()
+
         return numpy.array([
             head_x, head_y,
             food_x, food_y,
             self.direction[0], self.direction[1],
             dist_left, dist_right, dist_top, dist_bottom,
             dist_obstacle_up, dist_obstacle_down, dist_obstacle_left, dist_obstacle_right,
-            danger_ahead, danger_left, danger_right, *food_direction
+            danger_ahead, danger_left, danger_right, *food_direction, snake_length, average_reward
         ], dtype=numpy.float32)
 
     def step(self, action):
@@ -258,10 +281,13 @@ class SnakeGame:
             if new_distance < old_distance:
                 reward = 0.5
             elif new_distance > old_distance:
-                reward = -0.5
+                reward = -0.7
             else:
                 reward = -0.01
 
+        # Store the reward in the reward history
+        self.reward_history.append(reward)
+        
         return self.get_state(), reward, self.done
 
     def render(self):
@@ -312,8 +338,8 @@ class SnakeGame:
 
 # Initialize Pygame
 if __name__ == "__main__":
-    game = SnakeGame()
     agent = SnakeAgent()
+    game = SnakeGame(agent)
     clock = pygame.time.Clock()
     episodes = 1000
     for episode in range (episodes):
