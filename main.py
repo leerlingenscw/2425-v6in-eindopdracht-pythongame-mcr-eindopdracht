@@ -141,12 +141,6 @@ class SnakeGame:
             if food_pos not in self.snake:  # No food spawn in snake
                 return food_pos
 
-    def get_state(self):
-        # Current state of the game: snake head pos, food pos, direction
-        head_x, head_y = self.snake[0]
-        food_x, food_y = self.food
-        return numpy.array([head_x, head_y, food_x, food_y, self.direction[0], self.direction[1]], dtype=numpy.float32)
-
     def distance_to_obstacle(self, direction):
         head_x, head_y = self.snake[0]
         distance = 0
@@ -167,6 +161,25 @@ class SnakeGame:
             return 1.0
         else:
             return 0.0
+
+    def get_state(self):
+        # Current state of the game: snake head pos, food pos, direction
+        head_x, head_y = self.snake[0]
+        food_x, food_y = self.food
+        
+         # Afstanden tot de schermranden
+        dist_left = head_x
+        dist_right = (GRID_WIDTH - 1) - head_x
+        dist_top = head_y
+        dist_bottom = (GRID_HEIGHT - 1) - head_y
+
+         # Afstanden tot obstakels in elke richting
+        dist_obstacle_up = self.distance_to_obstacle(UP)
+        dist_obstacle_down = self.distance_to_obstacle(DOWN)
+        dist_obstacle_left = self.distance_to_obstacle(LEFT)
+        dist_obstacle_right = self.distance_to_obstacle(RIGHT)
+
+        return numpy.array([head_x, head_y, food_x, food_y, self.direction[0], self.direction[1]], dtype=numpy.float32)
 
     def step(self, action):
         # Update direction <- action
