@@ -65,8 +65,8 @@ class DQN(nn.Module):
 # Snake Agent
 class SnakeAgent:
     def __init__(self):
-        self.model = DQN(20, 4)
-        self.target_model = DQN(20,4)
+        self.model = DQN(21, 4)
+        self.target_model = DQN(21,4)
         self.target_model.load_state_dict(self.model.state_dict())
         self.target_model.eval()
 
@@ -274,7 +274,7 @@ class SnakeGame:
         # Draw food
         food_x, food_y = self.food
         screen.blit(food_img, (food_x * CELL_SIZE, food_y * CELL_SIZE))
-        
+
         # Draw snake
         for index, segment in enumerate(self.snake):
             if index == 0:  # Snake head
