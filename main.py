@@ -32,6 +32,8 @@ RIGHT = (1, 0)
 # Actions
 ACTIONS = [UP, DOWN, LEFT, RIGHT] 
 
+pygame.init()
+
 # Images
 snake_head_img = pygame.image.load("images/snake_head.png")
 snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
@@ -61,7 +63,7 @@ class DQN(nn.Module):
 class SnakeAgent:
     def __init__(self):
         self.model = DQN(17, 4)
-        self.target_model(17,4)
+        self.target_model = DQN(17,4)
         self.target_model.load_state_dict(self.model.state_dict())
         self.target_model.eval()
 
@@ -93,7 +95,7 @@ class SnakeAgent:
        
         states = torch.tensor(numpy.array(states), dtype=torch.float32)
         actions = torch.tensor(actions, dtype=torch.int64).unsqueeze(1)
-        rewards = torch.tensor(numpy.array(rewards), dtype=torch.float32)
+        rewards = torch.tensor(numpy.array(rewards), dtype=torch.float3)
         next_states = torch.tensor(numpy.array(next_states), dtype=torch.float32)
         dones = torch.tensor(numpy.array(dones), dtype=torch.float32)
        
@@ -264,7 +266,6 @@ class SnakeGame:
         # Draw the score
         score_text = font_counter.render(f"Score: {self.score}", True, WHITE)
         screen.blit(score_text, (SCREEN_WIDTH - 150, 20))
-        screen.blit(score_text, (SCREEN_WIDTH - 250, 20))
 
         pygame.display.flip()  # Update nodig zodat er minder glitch is!!!
 
@@ -292,7 +293,6 @@ class SnakeGame:
 
 # Initialize Pygame
 if __name__ == "__main__":
-    pygame.init()
     game = SnakeGame()
     agent = SnakeAgent()
     clock = pygame.time.Clock()
