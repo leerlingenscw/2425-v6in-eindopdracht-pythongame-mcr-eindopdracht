@@ -221,7 +221,7 @@ class SnakeGame:
         or new_head[1] <= 0 or new_head[1] >= GRID_HEIGHT - 1  # Wall collision (top/bottom)
         ):
             self.done = True  # Set done to True when game over
-            return self.get_state(), -1, self.done  # -1 reward for losing
+            return self.get_state(), -4, self.done  # -1 reward for losing
 
         # Add new head
         self.snake.insert(0, new_head)
@@ -230,17 +230,17 @@ class SnakeGame:
         if new_head == self.food:
             self.food = self.generate_food()  # Generate new food
             self.score += 1  # Increase score
-            reward = 1  # Reward for eating food
+            reward = 10  # Reward for eating food
         else:
             self.snake.pop()  # Remove the tail of the snake if no food eaten       
             new_distance = abs(new_head[0] - food_x) + abs(new_head[1] - food_y)
 
             if new_distance < old_distance:
-                reward = 0.1
+                reward = 0.5
             elif new_distance > old_distance:
-                reward = -0.1
+                reward = -0.5
             else:
-                reward = 0
+                reward = -0.01
 
         return self.get_state(), reward, self.done
 
