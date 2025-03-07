@@ -179,7 +179,21 @@ class SnakeGame:
         dist_obstacle_left = self.distance_to_obstacle(LEFT)
         dist_obstacle_right = self.distance_to_obstacle(RIGHT)
 
-        return numpy.array([head_x, head_y, food_x, food_y, self.direction[0], self.direction[1]], dtype=numpy.float32)
+        # Danger indicators
+        danger_ahead = self.check_danger(self.direction)
+        left_direction = (-self.direction[1], self.direction[0])
+        right_direction = (self.direction[1], -self.direction[0])
+        danger_left = self.check_danger(left_direction)
+        danger_right = self.check_danger(right_direction)
+
+        return numpy.array([
+            head_x, head_y,
+            food_x, food_y,
+            self.direction[0], self.direction[1],
+            dist_left, dist_right, dist_top, dist_bottom,
+            dist_obstacle_up, dist_obstacle_down, dist_obstacle_left, dist_obstacle_right,
+            danger_ahead, danger_left, danger_right
+        ], dtype=numpy.float32)
 
     def step(self, action):
         # Update direction <- action
