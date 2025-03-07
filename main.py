@@ -196,17 +196,17 @@ class SnakeGame:
 
     def step(self, action):
         # Update direction <- action
-        self.direction = ACTIONS[action]
+        new_direction = ACTIONS[action]
 
         # Prevent the snake from reversing direction
-        if self.direction == LEFT and action == RIGHT :
-            action = LEFT
-        elif self.direction == RIGHT and action == LEFT :
-            action = RIGHT
-        elif self.direction == DOWN and action == UP :
-            action = DOWN
-        elif self.direction == UP and action == DOWN :
-            action = UP
+        opposite_directions = {
+        UP: DOWN,
+        DOWN: UP,
+        LEFT: RIGHT,
+        RIGHT: LEFT
+    }
+        if new_direction != opposite_directions[self.direction]:
+            self.direction = new_direction
 
         # Move snake
         head_x, head_y = self.snake[0]
