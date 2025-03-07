@@ -281,9 +281,9 @@ class SnakeGame:
             if new_distance < old_distance:
                 reward = 0.5
             elif new_distance > old_distance:
-                reward = -0.7
+                reward = -0.5
             else:
-                reward = -0.01
+                reward = -0.02 + 0.01* len(self.snake)
 
         # Store the reward in the reward history
         self.reward_history.append(reward)
