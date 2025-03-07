@@ -62,8 +62,8 @@ class DQN(nn.Module):
 # Snake Agent
 class SnakeAgent:
     def __init__(self):
-        self.model = DQN(17, 4)
-        self.target_model = DQN(17,4)
+        self.model = DQN(20, 4)
+        self.target_model = DQN(20,4)
         self.target_model.load_state_dict(self.model.state_dict())
         self.target_model.eval()
 
@@ -139,6 +139,20 @@ class SnakeGame:
             food_pos = (random.randint(1, GRID_WIDTH - 2), random.randint(1, GRID_HEIGHT - 2))
             if food_pos not in self.snake:  # No food spawn in snake
                 return food_pos
+            
+    def get_food_direction_vector(self):
+        head_x, head_y = self.snake[0]
+        food_x, food_y = self.food
+        food_direction = [0, 0, 0, 0]
+        if food_y < head_y:
+            food_direction[0] = 1
+        elif food_y > head_y:
+            food_direction[1] = 1
+        if food_x < head_x:
+            food_direction[2] = 1
+        elif food_x > head_x:
+            food_direction[3] = 1
+        return food_direction
 
     def distance_to_obstacle(self, direction):
         head_x, head_y = self.snake[0]
@@ -185,13 +199,16 @@ class SnakeGame:
         danger_left = self.check_danger(left_direction)
         danger_right = self.check_danger(right_direction)
 
+        # Food direction
+        food_direction = self.get_food_direction_vector()
+
         return numpy.array([
             head_x, head_y,
             food_x, food_y,
             self.direction[0], self.direction[1],
             dist_left, dist_right, dist_top, dist_bottom,
             dist_obstacle_up, dist_obstacle_down, dist_obstacle_left, dist_obstacle_right,
-            danger_ahead, danger_left, danger_right
+            danger_ahead, danger_left, danger_right, *food_direction
         ], dtype=numpy.float32)
 
     def step(self, action):
