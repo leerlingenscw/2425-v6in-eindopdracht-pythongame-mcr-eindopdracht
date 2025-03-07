@@ -37,6 +37,9 @@ pygame.init()
 # Images
 snake_head_img = pygame.image.load("images/snake_head.png")
 snake_head_img = pygame.transform.scale(snake_head_img, (CELL_SIZE, CELL_SIZE))
+food_img = pygame.image.load("images/food.png")
+food_img = pygame.transform.scale(food_img, (CELL_SIZE, CELL_SIZE))
+
 
 # Font
 font_counter = pygame.font.SysFont("monospace", 30)
@@ -270,8 +273,8 @@ class SnakeGame:
 
         # Draw food
         food_x, food_y = self.food
-        pygame.draw.rect(screen, RED, (food_x * CELL_SIZE, food_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-
+        screen.blit(food_img, (food_x * CELL_SIZE, food_y * CELL_SIZE))
+        
         # Draw snake
         for index, segment in enumerate(self.snake):
             if index == 0:  # Snake head
