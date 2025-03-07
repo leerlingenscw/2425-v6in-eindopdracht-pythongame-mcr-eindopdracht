@@ -95,7 +95,7 @@ class SnakeAgent:
        
         states = torch.tensor(numpy.array(states), dtype=torch.float32)
         actions = torch.tensor(actions, dtype=torch.int64).unsqueeze(1)
-        rewards = torch.tensor(numpy.array(rewards), dtype=torch.float3)
+        rewards = torch.tensor(numpy.array(rewards), dtype=torch.float32)
         next_states = torch.tensor(numpy.array(next_states), dtype=torch.float32)
         dones = torch.tensor(numpy.array(dones), dtype=torch.float32)
        
