@@ -290,30 +290,6 @@ class SnakeGame:
         pygame.display.flip()
         pygame.time.delay(1000)  # 1sec before quitting
 
-
-# Game loop TESTING
-if __name__ == "__main__":
-    game = SnakeGame()
-    done = False
-
-    while not done:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                done = True
-
-        # randomly choose actions
-        action = random.randint(0, 3)
-        state, reward, done = game.step(action)
-
-        # Display the game window
-        game.render()
-
-        if done:
-            game.show_game_over()  # Game Over message
-            game.reset()  # Reset
-            pygame.time.delay(1000)  # 1 sec before resetting
-
-
 # Initialize Pygame
 if __name__ == "__main__":
     pygame.init()
