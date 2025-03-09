@@ -406,7 +406,7 @@ class GeneticAlgorithm:
 if __name__ == "__main__":
     population_size = 125
     mutation_rate = 0.05
-    generations = 100
+    generations = 1000000
     state_size = 23 # Number of inputs
     action_size = 4
 
@@ -419,34 +419,34 @@ if __name__ == "__main__":
         best_agent = ga.best_agents[0]
         print(f"Best Fitness: {best_agent.fitness}, Best Score: {best_agent.score}")
 
-        game = SnakeGame(best_agent)
-        state = game.reset()
-        done = False
-        while not done:
-            # Process events so the window remains responsive
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-            action = best_agent.get_action(state)
-            next_state, reward, done = game.step(action)
-            state = next_state
-            game.render()
-            clock.tick(20)
-        
-        # Show game over message (this method now uses self.score)
-        game.show_game_over()
+         # Check for key press events without blocking the GA loop.
+        demonstration_mode = False
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                demonstration_mode = True
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
 
-        # Wait for a key press before proceeding to the next generation
-        waiting = True
-        while waiting:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    waiting = False
-                elif event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
+        if demonstration_mode:
+            # Run demo: render gameplay huidige best agent
+            game = SnakeGame(best_agent)
+            state = game.reset()
+            done = False
+            while not done:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        exit()
+                action = best_agent.get_action(state)
+                next_state, reward, done = game.step(action)
+                state = next_state
+                game.render()
+                clock.tick(20)
+            game.show_game_over()
+            pygame.time.delay(1000)
 
+        # nieuwe gen, regardless van de demo
         ga.create_new_generation()
 
     pygame.quit()
