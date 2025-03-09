@@ -376,7 +376,7 @@ class GeneticAlgorithm:
     def select_parents(self):
         # Select the top 20% of agents as parents
         self.population.sort(key=lambda agent: agent.fitness, reverse=True)
-        self.best_agents = self.population[:max(1, len(self.population) // 5)]
+        self.best_agents = self.population[:max(1, len(self.population) // 7)]
 
     def crossover(self, parent1, parent2):
         child = self.agent_class(self.state_size, self.action_size)
