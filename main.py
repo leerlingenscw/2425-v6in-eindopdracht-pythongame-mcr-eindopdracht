@@ -64,9 +64,9 @@ class DQN(nn.Module):
 
 # Snake Agent
 class SnakeAgent:
-    def __init__(self, reward_history_length=5):
-        self.model = DQN(23, 4)
-        self.target_model = DQN(23,4)
+    def __init__(self, state_size, action_size, reward_history_length=5):
+        self.model = DQN(state_size, action_size)
+        self.target_model = DQN(state_size, action_size)
         self.target_model.load_state_dict(self.model.state_dict())
         self.target_model.eval()
 
@@ -82,6 +82,9 @@ class SnakeAgent:
         # Initialize reward history
         self.reward_history_length = reward_history_length
         self.reward_history = deque(maxlen=reward_history_length)
+
+        self.fitness = 0
+        self.score = 0
    
     def get_action(self, state):
         if random.random() < self.epsilon:
@@ -328,7 +331,7 @@ class SnakeGame:
     def show_game_over(self):
         # Display the "Game Over" message
         screen = pygame.display.get_surface()
-        print("Game Over! Score: " + str(game.score))
+        print("Game Over! Score: " + str(self.score))
         screen.fill(BLACK)
         game_over_text = font_gameover.render("GAME OVER", True, RED)
         text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
@@ -336,27 +339,87 @@ class SnakeGame:
         pygame.display.flip()
         pygame.time.delay(1000)  # 1sec before quitting
 
-# Initialize Pygame
+#--------------------------------Genetic Algoritme--------------------------------
+class GeneticAlgorithm:
+    def __init__(self, population_size, mutation_rate, agent_class, state_size, action_size, reward_history_length=5):
+        self.population_size = population_size
+        self.mutation_rate = mutation_rate
+        self.agent_class = agent_class
+        self.state_size = state_size
+        self.action_size = action_size
+        self.population = [self.agent_class(state_size, action_size, reward_history_length)
+                           for _ in range(population_size)]
+        self.best_agents = []
+
+    def evaluate_fitness(self):
+        # Evaluate each agent by having it play a full game (without rendering)
+        for agent in self.population:
+            game = SnakeGame(agent)
+            state = game.reset()
+            done = False
+            total_reward = 0
+            total_score = 0
+            while not done:
+                action = agent.get_action(state)
+                next_state, reward, done = game.step(action)
+                agent.store_transition(state, action, reward, next_state, done)
+                state = next_state
+                total_reward += reward
+                if reward == 10:
+                    total_score += 1
+            agent.fitness = total_reward
+            agent.score = total_score
+
+    def select_parents(self):
+        # Select the top 20% of agents as parents
+        self.population.sort(key=lambda agent: agent.fitness, reverse=True)
+        self.best_agents = self.population[:max(1, len(self.population) // 5)]
+
+    def crossover(self, parent1, parent2):
+        child = self.agent_class(self.state_size, self.action_size)
+        parent1_weights = parent1.model.state_dict()
+        parent2_weights = parent2.model.state_dict()
+        child_weights = {}
+        for key in parent1_weights:
+            if random.random() < 0.5:
+                child_weights[key] = parent1_weights[key].clone()
+            else:
+                child_weights[key] = parent2_weights[key].clone()
+        child.model.load_state_dict(child_weights)
+        return child
+
+    def mutate(self, agent):
+        for param in agent.model.parameters():
+            if random.random() < self.mutation_rate:
+                param.data += torch.randn(param.size()) * 0.01
+
+    def create_new_generation(self):
+        new_population = []
+        while len(new_population) < self.population_size:
+            parent1, parent2 = random.sample(self.best_agents, 2)
+            child = self.crossover(parent1, parent2)
+            self.mutate(child)
+            new_population.append(child)
+        self.population = new_population
+
+#---------------------------Loop---------------------------------
 if __name__ == "__main__":
-    agent = SnakeAgent()
-    game = SnakeGame(agent)
-    clock = pygame.time.Clock()
-    episodes = 1000
-    for episode in range (episodes):
-        state = game.reset()
-        done = False
-        total_reward = 0
+    population_size = 125
+    mutation_rate = 0.05
+    generations = 100
+    state_size = 23   # extra state inputs are preserved
+    action_size = 4
 
-        while not done:
-            action = agent.get_action(state)
-            next_state, reward, done = game.step(action)
-            agent.store_transition(state, action, reward, next_state, done)
-            state = next_state
-            total_reward += reward
-            game.render()
-            clock.tick(20)
-       
-        agent.train()
-        print(f"Episode {episode+1}: Score = {game.score}, Total Reward = {total_reward}")
+    ga = GeneticAlgorithm(population_size, mutation_rate, SnakeAgent, state_size, action_size)
+    
+    for generation in range(generations):
+        print(f"Generation {generation + 1}")
+        ga.evaluate_fitness()
+        ga.select_parents()
+        best_fitness = ga.best_agents[0].fitness
+        best_score = ga.best_agents[0].score
+        print(f"Best Fitness: {best_fitness}, Best Score: {best_score}")
 
-pygame.quit()
+        ga.create_new_generation()
+
+    pygame.quit()
