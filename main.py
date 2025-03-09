@@ -407,7 +407,7 @@ class GeneticAlgorithm:
 
 #---------------------------Loop---------------------------------
 if __name__ == "__main__":
-    population_size = 125
+    population_size = 500
     mutation_rate = 0.05
     generations = 1000000
     state_size = 23 # Number of inputs
