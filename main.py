@@ -374,7 +374,7 @@ class GeneticAlgorithm:
             agent.score = total_score
 
     def select_parents(self):
-        # Select the top 20% of agents as parents
+        # Select the top 14% of agents as parents
         self.population.sort(key=lambda agent: agent.fitness, reverse=True)
         self.best_agents = self.population[:max(1, len(self.population) // 7)]
 
