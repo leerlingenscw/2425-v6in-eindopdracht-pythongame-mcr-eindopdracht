@@ -445,7 +445,7 @@ if __name__ == "__main__":
                 next_state, reward, done = game.step(action)
                 state = next_state
                 game.render()
-                clock.tick(20)
+                clock.tick(30)
             game.show_game_over()
             pygame.time.delay(1000)
 
