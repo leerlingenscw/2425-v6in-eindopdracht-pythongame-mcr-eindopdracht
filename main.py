@@ -407,7 +407,7 @@ if __name__ == "__main__":
     population_size = 125
     mutation_rate = 0.05
     generations = 100
-    state_size = 23   # extra state inputs are preserved
+    state_size = 23 # Number of inputs
     action_size = 4
 
     ga = GeneticAlgorithm(population_size, mutation_rate, SnakeAgent, state_size, action_size)
@@ -416,9 +416,36 @@ if __name__ == "__main__":
         print(f"Generation {generation + 1}")
         ga.evaluate_fitness()
         ga.select_parents()
-        best_fitness = ga.best_agents[0].fitness
-        best_score = ga.best_agents[0].score
-        print(f"Best Fitness: {best_fitness}, Best Score: {best_score}")
+        best_agent = ga.best_agents[0]
+        print(f"Best Fitness: {best_agent.fitness}, Best Score: {best_agent.score}")
+
+        game = SnakeGame(best_agent)
+        state = game.reset()
+        done = False
+        while not done:
+            # Process events so the window remains responsive
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+            action = best_agent.get_action(state)
+            next_state, reward, done = game.step(action)
+            state = next_state
+            game.render()
+            clock.tick(20)
+        
+        # Show game over message (this method now uses self.score)
+        game.show_game_over()
+
+        # Wait for a key press before proceeding to the next generation
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    waiting = False
+                elif event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
 
         ga.create_new_generation()
 
